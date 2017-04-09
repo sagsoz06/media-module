@@ -2,7 +2,6 @@
 
 namespace Modules\Media\Providers;
 
-use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Modules\Core\Traits\CanPublishConfiguration;
@@ -10,8 +9,6 @@ use Modules\Media\Blade\MediaMultipleDirective;
 use Modules\Media\Blade\MediaSingleDirective;
 use Modules\Media\Console\RefreshThumbnailCommand;
 use Modules\Media\Entities\File;
-use Modules\Media\Events\Handlers\HandleMediaStorage;
-use Modules\Media\Events\Handlers\RemovePolymorphicLink;
 use Modules\Media\Image\ThumbnailManager;
 use Modules\Media\Repositories\Eloquent\EloquentFileRepository;
 use Modules\Media\Repositories\FileRepository;
@@ -46,16 +43,13 @@ class MediaServiceProvider extends ServiceProvider
         });
     }
 
-    public function boot(DispatcherContract $events)
+    public function boot()
     {
         $this->registerMaxFolderSizeValidator();
 
         $this->publishConfig('media', 'config');
         $this->publishConfig('media', 'permissions');
         $this->publishConfig('media', 'assets');
-
-        $events->listen('*', HandleMediaStorage::class);
-        $events->listen('*', RemovePolymorphicLink::class);
 
         $this->app[TagManager::class]->registerNamespace(new File());
         $this->registerThumbnails();
