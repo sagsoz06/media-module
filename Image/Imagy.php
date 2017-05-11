@@ -290,7 +290,7 @@ class Imagy
         if( ! $this->fileExists($this->getDestinationPath($filename))) {
             $image = $this->image->make($this->filesystem->disk($this->getConfiguredFilesystem())->get($this->getDestinationPath($path->getRelativeUrl())));
             $image = $this->imageFactory->make($params['mode'])->handle($image, $options);
-            $image = $image->widen($params['width'])->stream(pathinfo($path, PATHINFO_EXTENSION), array_get($options['callback'], 'quality', $params['quality']));
+            $image = $image->resize($params['width'], $params['height'])->stream(pathinfo($path, PATHINFO_EXTENSION), array_get($options['callback'], 'quality', $params['quality']));
             $this->writeImage($filename, $image);
         }
 
