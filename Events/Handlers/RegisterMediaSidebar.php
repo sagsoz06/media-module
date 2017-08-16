@@ -1,29 +1,14 @@
 <?php
 
-namespace Modules\Media\Sidebar;
+namespace Modules\Media\Events\Handlers;
 
 use Maatwebsite\Sidebar\Group;
 use Maatwebsite\Sidebar\Item;
 use Maatwebsite\Sidebar\Menu;
-use Modules\User\Contracts\Authentication;
+use Modules\Core\Sidebar\AbstractAdminSidebar;
 
-class SidebarExtender implements \Maatwebsite\Sidebar\SidebarExtender
+class RegisterMediaSidebar extends AbstractAdminSidebar
 {
-    /**
-     * @var Authentication
-     */
-    protected $auth;
-
-    /**
-     * @param Authentication $auth
-     *
-     * @internal param Guard $guard
-     */
-    public function __construct(Authentication $auth)
-    {
-        $this->auth = $auth;
-    }
-
     /**
      * @param Menu $menu
      *

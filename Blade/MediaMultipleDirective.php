@@ -31,7 +31,7 @@ class MediaMultipleDirective
         view()->composer($view, PartialAssetComposer::class);
 
         $zone = $this->zone;
-        $zoneName = $this->zoneName;
+        $zoneName = $this->zoneName ?: ucwords(str_replace('_', ' ', $this->zone));
 
         if ($this->entity !== null) {
             $media = $this->entity->filesByZone($this->zone)->get();

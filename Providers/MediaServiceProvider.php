@@ -4,11 +4,15 @@ namespace Modules\Media\Providers;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Modules\Core\Events\BuildingSidebar;
+use Modules\Core\Traits\CanGetSidebarClassForModule;
 use Modules\Core\Traits\CanPublishConfiguration;
 use Modules\Media\Blade\MediaMultipleDirective;
 use Modules\Media\Blade\MediaSingleDirective;
+use Modules\Media\Blade\MediaThumbnailDirective;
 use Modules\Media\Console\RefreshThumbnailCommand;
 use Modules\Media\Entities\File;
+use Modules\Media\Events\Handlers\RegisterMediaSidebar;
 use Modules\Media\Image\ThumbnailManager;
 use Modules\Media\Repositories\Eloquent\EloquentFileRepository;
 use Modules\Media\Repositories\FileRepository;
@@ -16,7 +20,7 @@ use Modules\Tag\Repositories\TagManager;
 
 class MediaServiceProvider extends ServiceProvider
 {
-    use CanPublishConfiguration;
+    use CanPublishConfiguration, CanGetSidebarClassForModule;
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -41,6 +45,14 @@ class MediaServiceProvider extends ServiceProvider
         $this->app->bind('media.multiple.directive', function () {
             return new MediaMultipleDirective();
         });
+        $this->app->bind('media.thumbnail.directive', function () {
+           return new MediaThumbnailDirective();
+        });
+
+        $this->app['events']->listen(
+          BuildingSidebar::class,
+          $this->getSidebarClassForModule('media', RegisterMediaSidebar::class)
+        );
     }
 
     public function boot()
@@ -124,6 +136,9 @@ class MediaServiceProvider extends ServiceProvider
         });
         $this->app['blade.compiler']->directive('mediaMultiple', function ($value) {
             return "<?php echo MediaMultipleDirective::show([$value]); ?>";
+        });
+        $this->app['blade.compiler']->directive('thumbnail', function ($value) {
+            return "<?php echo MediaThumbnailDirective::show([$value]); ?>";
         });
     }
 }

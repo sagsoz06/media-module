@@ -3,7 +3,7 @@
     "alias": "media",
     "description": "A media library, used throughout the CMS.",
     "keywords": [],
-    "version": "2.0.4",
+    "version": "2.0.5",
     "active": 1,
     "order": 20,
     "providers": [
@@ -17,7 +17,8 @@
         "Imagy": "Modules\\Media\\Image\\Facade\\Imagy",
         "FileHelper": "Modules\\Media\\Helpers\\FileHelper",
         "MediaSingleDirective": "Modules\\Media\\Blade\\Facades\\MediaSingleDirective",
-        "MediaMultipleDirective": "Modules\\Media\\Blade\\Facades\\MediaMultipleDirective"
+        "MediaMultipleDirective": "Modules\\Media\\Blade\\Facades\\MediaMultipleDirective",
+        "MediaThumbnailDirective": "Modules\\Media\\Blade\\Facades\\MediaThumbnailDirective"
     },
     "files": [
     ]
