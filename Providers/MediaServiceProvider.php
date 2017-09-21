@@ -3,6 +3,7 @@
 namespace Modules\Media\Providers;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Support\ServiceProvider;
 use Modules\Core\Events\BuildingSidebar;
 use Modules\Core\Traits\CanGetSidebarClassForModule;
@@ -11,8 +12,14 @@ use Modules\Media\Blade\MediaMultipleDirective;
 use Modules\Media\Blade\MediaSingleDirective;
 use Modules\Media\Blade\MediaThumbnailDirective;
 use Modules\Media\Console\RefreshThumbnailCommand;
+use Modules\Media\Contracts\DeletingMedia;
+use Modules\Media\Contracts\StoringMedia;
 use Modules\Media\Entities\File;
+use Modules\Media\Events\FolderWasCreated;
+use Modules\Media\Events\Handlers\CreateFolderOnDisk;
+use Modules\Media\Events\Handlers\HandleMediaStorage;
 use Modules\Media\Events\Handlers\RegisterMediaSidebar;
+use Modules\Media\Events\Handlers\RemovePolymorphicLink;
 use Modules\Media\Image\ThumbnailManager;
 use Modules\Media\Repositories\Eloquent\EloquentFileRepository;
 use Modules\Media\Repositories\FileRepository;
@@ -46,22 +53,26 @@ class MediaServiceProvider extends ServiceProvider
             return new MediaMultipleDirective();
         });
         $this->app->bind('media.thumbnail.directive', function () {
-           return new MediaThumbnailDirective();
+            return new MediaThumbnailDirective();
         });
 
         $this->app['events']->listen(
-          BuildingSidebar::class,
-          $this->getSidebarClassForModule('media', RegisterMediaSidebar::class)
+            BuildingSidebar::class,
+            $this->getSidebarClassForModule('media', RegisterMediaSidebar::class)
         );
     }
 
-    public function boot()
+    public function boot(DispatcherContract $events)
     {
         $this->registerMaxFolderSizeValidator();
 
         $this->publishConfig('media', 'config');
         $this->publishConfig('media', 'permissions');
         $this->publishConfig('media', 'assets');
+
+        $events->listen(StoringMedia::class, HandleMediaStorage::class);
+        $events->listen(DeletingMedia::class, RemovePolymorphicLink::class);
+        $events->listen(FolderWasCreated::class, CreateFolderOnDisk::class);
 
         $this->app[TagManager::class]->registerNamespace(new File());
         $this->registerThumbnails();
