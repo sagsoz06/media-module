@@ -277,7 +277,6 @@ class Imagy
             'callback' => function ($constraint) use ($params) {
                 if($params['mode']=='resize') {
                     $constraint->aspectRatio();
-                    $constraint->upsize();
                 } elseif($params['mode']=='fit') {
                     $constraint->upsize();
                 }
