@@ -47,6 +47,35 @@ class MediaController extends AdminBaseController
     {
         $files = $this->file->all();
 
+        if(request()->ajax()) {
+            return \Datatables::of($files)
+                ->addColumn('thumbnail', function($file){
+                    if ($file->isImage()):
+                        return \Html::image(\Imagy::getThumbnail($file->path, 'smallThumb'));
+                    else:
+                        return '<i class="fa '.\FileHelper::getFaIcon($file->media_type).'" style="font-size: 20px;"></i>';
+                    endif;
+                })
+                ->addColumn('action', function ($file) {
+                    $action_buttons =   \Html::decode(link_to(
+                        route('admin.media.media.edit',
+                            [$file->id]),
+                        '<i class="fa fa-pencil"></i>',
+                        ['class'=>'btn btn-default btn-flat']
+                    ));
+                    $action_buttons .=  \Html::decode(\Form::button(
+                        '<i class="fa fa-trash"></i>',
+                        ["data-toggle" => "modal",
+                            "data-action-target" => route("admin.media.media.destroy", [$file->id]),
+                            "data-target" => "#modal-delete-confirmation",
+                            "class"=>"btn btn-danger btn-flat"]
+                    ));
+                    return $action_buttons;
+                })
+                ->escapeColumns([])
+                ->make(true);
+        }
+
         $config = $this->config->get('asgard.media.config');
 
         return view('media::admin.index', compact('files', 'config'));
