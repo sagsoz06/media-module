@@ -104,9 +104,6 @@
 <script type="text/javascript">
     $(function () {
         $('.data-table').dataTable({
-            "processing": true,
-            "serverSide": true,
-            "ajax": '{{ route('admin.media.media.index') }}',
             "paginate": true,
             "lengthChange": true,
             "filter": true,
@@ -114,12 +111,6 @@
             "info": true,
             "autoWidth": true,
             "order": [[ 2, "desc" ]],
-            columns: [
-                {data: 'thumbnail', name: 'thumbnail'},
-                {data: 'filename', name: 'filename'},
-                {data: 'created_at', name: 'created_at'},
-                {data: 'action', name: 'action', orderable: false, searchable: true}
-            ],
             stateSave: true,
             "language": {
                 "url": '<?php echo Module::asset("core:js/vendor/datatables/{$locale}.json") ?>'

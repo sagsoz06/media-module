@@ -68,7 +68,10 @@ class MediaController extends AdminBaseController
                         ["data-toggle" => "modal",
                             "data-action-target" => route("admin.media.media.destroy", [$file->id]),
                             "data-target" => "#modal-delete-confirmation",
-                            "class"=>"btn btn-danger btn-flat"]
+                            "data-method" => "delete",
+                            "data-token" => csrf_token(),
+                            "class"=>"btn btn-danger btn-flat"
+                        ]
                     ));
                     return $action_buttons;
                 })
