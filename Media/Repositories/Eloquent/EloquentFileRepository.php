@@ -123,16 +123,4 @@ class EloquentFileRepository extends EloquentBaseRepository implements FileRepos
 
         return $fileNameOnly . '_' . $version . '.' . $extension;
     }
-
-    /**
-     * @return mixed
-     */
-    public function query()
-    {
-        if (method_exists($this->model, 'translations')) {
-            return $this->model->query()->with('translations')->orderBy('created_at', 'DESC');
-        }
-
-        return $this->model->query()->orderBy('created_at', 'DESC');
-    }
 }

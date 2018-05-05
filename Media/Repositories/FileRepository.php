@@ -29,9 +29,4 @@ interface FileRepository extends BaseRepository
      * @return object
      */
     public function findMultipleFilesByZoneForEntity($zone, $entity);
-
-    /**
-     * @return mixed
-     */
-    public function query();
 }

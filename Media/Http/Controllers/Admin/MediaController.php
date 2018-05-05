@@ -45,7 +45,7 @@ class MediaController extends AdminBaseController
      */
     public function index()
     {
-        $files = $this->file->query();
+        $files = $this->file->all();
 
         if(request()->ajax()) {
             return \Datatables::of($files)
