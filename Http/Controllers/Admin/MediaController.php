@@ -8,7 +8,7 @@ use Modules\Media\Entities\File;
 use Modules\Media\Http\Requests\UpdateMediaRequest;
 use Modules\Media\Image\Imagy;
 use Modules\Media\Image\ThumbnailManager;
-use Modules\Media\Repositories\FileRepository;
+use Modules\Media\Repositories\FileRepository as MediaFileRepository;
 
 class MediaController extends AdminBaseController
 {
@@ -29,7 +29,7 @@ class MediaController extends AdminBaseController
      */
     private $thumbnailsManager;
 
-    public function __construct(FileRepository $file, Repository $config, Imagy $imagy, ThumbnailManager $thumbnailsManager)
+    public function __construct(MediaFileRepository $file, Repository $config, Imagy $imagy, ThumbnailManager $thumbnailsManager)
     {
         parent::__construct();
         $this->file = $file;
