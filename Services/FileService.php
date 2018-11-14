@@ -5,6 +5,7 @@ namespace Modules\Media\Services;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Modules\Media\Entities\File;
+use Modules\Media\Image\Imagy;
 use Modules\Media\Jobs\CreateThumbnails;
 use Modules\Media\Repositories\FileRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -21,11 +22,16 @@ class FileService
      * @var Factory
      */
     private $filesystem;
+    /**
+     * @var Imagy
+     */
+    private $imagy;
 
-    public function __construct(FileRepository $file, Factory $filesystem)
+    public function __construct(FileRepository $file, Factory $filesystem, Imagy $imagy)
     {
         $this->file = $file;
         $this->filesystem = $filesystem;
+        $this->imagy = $imagy;
     }
 
     /**
@@ -76,5 +82,11 @@ class FileService
     private function getConfiguredFilesystem()
     {
         return config('asgard.media.config.filesystem');
+    }
+
+    public function remove(File $file)
+    {
+        $this->imagy->deleteAllFor($file);
+        return $this->file->destroy($file);
     }
 }
