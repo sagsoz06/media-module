@@ -290,7 +290,7 @@ class Imagy
         if( ! $this->fileExists($this->getDestinationPath($filename))) {
             $image = $this->image->make($this->filesystem->disk($this->getConfiguredFilesystem())->get($this->getDestinationPath($path->getRelativeUrl())));
             $image = $this->imageFactory->make($params['mode'])->handle($image, $options);
-            if($params['watermark']) {
+            if(isset($params['watermark'])) {
                 $template = 'themes/'.strtolower(\Setting::get('core::template')).'/images/'.$params['watermark'];
                 if(file_exists(public_path($template))) {
                     $wm_width = $params['width'] ?? $params['height'];
