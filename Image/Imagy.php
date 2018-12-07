@@ -270,45 +270,50 @@ class Imagy
 
     public function getImage($originalImage, $thumbnail, $params = [])
     {
-        $thumbnail = $thumbnail . '_' . $params['mode'] . '_' . $params['width'] . '_' . $params['height'] . '_' . $params['quality'];
-        $options = [
-            'width' => $params['width'],
-            'height' => $params['height'],
-            'transparency' => isset($params['opacity']) ? $params['opacity'] : 50,
-            'callback' => function ($constraint) use ($params) {
-                if($params['mode']=='resize') {
-                    $constraint->aspectRatio();
-                } elseif($params['mode']=='fit') {
-                    $constraint->upsize();
-                }
-            }
-        ];
-        $path = config('asgard.media.config.files-path') . $originalImage;
-        $path = (new MediaPath($path));
-        $filename = config('asgard.media.config.files-path') . $this->newFilename($path->getRelativeUrl(), $thumbnail);
-
-        if( ! $this->fileExists($this->getDestinationPath($filename))) {
-            $image = $this->image->make($this->filesystem->disk($this->getConfiguredFilesystem())->get($this->getDestinationPath($path->getRelativeUrl())));
-            $image = $this->imageFactory->make($params['mode'])->handle($image, $options);
-            if(array_key_exists('watermark', $params)) {
-                if(!empty($params['watermark'])) {
-                    $template = 'themes/'.strtolower(\Setting::get('core::template')).'/images/'.$params['watermark'];
-                    if(file_exists(public_path($template))) {
-                        $wm_width = $params['width'] ?? $params['height'];
-                        $wm_width = (int)ceil($wm_width/3);
-                        $watermark = Image::make(public_path($template))->opacity(50);
-                        $watermark = $watermark->resize($wm_width, null, function ($constraint){
-                            $constraint->aspectRatio();
-                        });
-                        $image = $image->insert($watermark, 'center');
+        try {
+            $thumbnail = $thumbnail . '_' . $params['mode'] . '_' . $params['width'] . '_' . $params['height'] . '_' . $params['quality'];
+            $options = [
+                'width' => $params['width'],
+                'height' => $params['height'],
+                'transparency' => isset($params['opacity']) ? $params['opacity'] : 50,
+                'callback' => function ($constraint) use ($params) {
+                    if($params['mode']=='resize') {
+                        $constraint->aspectRatio();
+                    } elseif($params['mode']=='fit') {
+                        $constraint->upsize();
                     }
                 }
-            }
-            $image = $image->resize($params['width'], $params['height'])->stream(pathinfo($path, PATHINFO_EXTENSION), array_get($options['callback'], 'quality', $params['quality']));
-            $this->writeImage($filename, $image);
-        }
+            ];
+            $path = config('asgard.media.config.files-path') . $originalImage;
+            $path = (new MediaPath($path));
+            $filename = config('asgard.media.config.files-path') . $this->newFilename($path->getRelativeUrl(), $thumbnail);
 
-        return $this->getThumbnail($originalImage, $thumbnail);
+            if( ! $this->fileExists($this->getDestinationPath($filename))) {
+                $image = $this->image->make($this->filesystem->disk($this->getConfiguredFilesystem())->get($this->getDestinationPath($path->getRelativeUrl())));
+                $image = $this->imageFactory->make($params['mode'])->handle($image, $options);
+                if(array_key_exists('watermark', $params)) {
+                    if(!empty($params['watermark'])) {
+                        $template = 'themes/'.strtolower(\Setting::get('core::template')).'/images/'.$params['watermark'];
+                        if(file_exists(public_path($template))) {
+                            $wm_width = $params['width'] ?? $params['height'];
+                            $wm_width = (int)ceil($wm_width/3);
+                            $watermark = Image::make(public_path($template))->opacity(50);
+                            $watermark = $watermark->resize($wm_width, null, function ($constraint){
+                                $constraint->aspectRatio();
+                            });
+                            $image = $image->insert($watermark, 'center');
+                        }
+                    }
+                }
+                $image = $image->resize($params['width'], $params['height'])->stream(pathinfo($path, PATHINFO_EXTENSION), array_get($options['callback'], 'quality', $params['quality']));
+                $this->writeImage($filename, $image);
+            }
+
+            return $this->getThumbnail($originalImage, $thumbnail);
+        }
+        catch (\Exception $exception) {
+            \Log::critical($originalImage.' thumbnail not found');
+        }
     }
 
 
