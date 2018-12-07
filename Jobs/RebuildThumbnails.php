@@ -20,31 +20,38 @@ class RebuildThumbnails implements ShouldQueue
      * @var FileRepository
      */
     private $file;
+    /**
+     * @var bool
+     */
+    private $clean;
 
-    public function __construct(Collection $paths)
+    public function __construct(Collection $paths, $clean=false)
     {
         $this->paths = $paths;
         $this->file = app(FileRepository::class);
+        $this->clean = $clean;
     }
 
     public function handle()
     {
         $imagy = app('imagy');
 
-        $mediaPath   = public_path(config('asgard.media.config.files-path'));
-        $allFiles    = collect(preg_grep('/^([^.])/', scandir($mediaPath)));
-        $getFiles    = $this->file->all();
-        $exceptFiles = $allFiles->map(function($item, $key){
-            return [
-                'id'       => $key,
-                'filename' => $item
-            ];
-        })->values()->whereIn('filename', $getFiles->pluck('filename', 'id'));
-        $allFiles->map(function($filename, $id) use ($exceptFiles, $mediaPath){
-            if(!$exceptFiles->where('filename', $filename)->count()>0) {
-                \File::delete($mediaPath.$filename);
-            }
-        });
+        if($this->clean) {
+            $mediaPath   = public_path(config('asgard.media.config.files-path'));
+            $allFiles    = collect(preg_grep('/^([^.])/', scandir($mediaPath)));
+            $getFiles    = $this->file->all();
+            $exceptFiles = $allFiles->map(function($item, $key){
+                return [
+                    'id'       => $key,
+                    'filename' => $item
+                ];
+            })->values()->whereIn('filename', $getFiles->pluck('filename', 'id'));
+            $allFiles->each(function($filename) use ($exceptFiles, $mediaPath){
+                if(!$exceptFiles->where('filename', $filename)->count()>0) {
+                    \File::delete($mediaPath.$filename);
+                }
+            });
+        }
 
         foreach ($this->paths as $path) {
             try {

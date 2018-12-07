@@ -290,16 +290,18 @@ class Imagy
         if( ! $this->fileExists($this->getDestinationPath($filename))) {
             $image = $this->image->make($this->filesystem->disk($this->getConfiguredFilesystem())->get($this->getDestinationPath($path->getRelativeUrl())));
             $image = $this->imageFactory->make($params['mode'])->handle($image, $options);
-            if(isset($params['watermark'])) {
-                $template = 'themes/'.strtolower(\Setting::get('core::template')).'/images/'.$params['watermark'];
-                if(file_exists(public_path($template))) {
-                    $wm_width = $params['width'] ?? $params['height'];
-                    $wm_width = (int)ceil($wm_width/3);
-                    $watermark = Image::make(public_path($template))->opacity(50);
-                    $watermark = $watermark->resize($wm_width, null, function ($constraint){
-                        $constraint->aspectRatio();
-                    });
-                    $image = $image->insert($watermark, 'center');
+            if(array_key_exists('watermark', $params)) {
+                if(!empty($params['watermark'])) {
+                    $template = 'themes/'.strtolower(\Setting::get('core::template')).'/images/'.$params['watermark'];
+                    if(file_exists(public_path($template))) {
+                        $wm_width = $params['width'] ?? $params['height'];
+                        $wm_width = (int)ceil($wm_width/3);
+                        $watermark = Image::make(public_path($template))->opacity(50);
+                        $watermark = $watermark->resize($wm_width, null, function ($constraint){
+                            $constraint->aspectRatio();
+                        });
+                        $image = $image->insert($watermark, 'center');
+                    }
                 }
             }
             $image = $image->resize($params['width'], $params['height'])->stream(pathinfo($path, PATHINFO_EXTENSION), array_get($options['callback'], 'quality', $params['quality']));

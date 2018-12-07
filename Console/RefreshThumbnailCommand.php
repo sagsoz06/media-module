@@ -11,7 +11,7 @@ use Modules\Media\Repositories\FileRepository;
 class RefreshThumbnailCommand extends Command
 {
     use DispatchesJobs;
-    protected $name = 'asgard:media:refresh';
+    protected $signature = 'asgard:media:refresh {clean?}';
     protected $description = 'Create and or refresh the thumbnails';
     /**
      * @var FileRepository
@@ -39,7 +39,13 @@ class RefreshThumbnailCommand extends Command
 
         $this->line('Preparing to regenerate all thumbnails...');
 
-        $this->dispatch(new RebuildThumbnails($this->file->all()->pluck('path')));
+        $clean = $this->argument('clean');
+
+        if($clean) {
+            $this->dispatch(new RebuildThumbnails($this->file->all()->pluck('path'), true));
+        } else {
+            $this->dispatch(new RebuildThumbnails($this->file->all()->pluck('path')));
+        }
 
         $this->info('All thumbnails refreshed');
     }
