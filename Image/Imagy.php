@@ -298,10 +298,22 @@ class Imagy
                             $wm_width = $params['width'] ?? $params['height'];
                             $wm_width = (int)ceil($wm_width/3);
                             $watermark = Image::make(public_path($template))->opacity(50);
-                            $watermark = $watermark->resize($wm_width, null, function ($constraint){
-                                $constraint->aspectRatio();
-                            });
-                            $image = $image->insert($watermark, 'center');
+                            if($params['watermark']=='watermark-repeat.png') {
+                                $x = 0;
+                                while ($x < $image->width()) {
+                                    $y = 0;
+                                    while($y < $image->height()) {
+                                        $image->insert($watermark, 'top-left', $x, $y);
+                                        $y += $watermark->height();
+                                    }
+                                    $x += $watermark->width();
+                                }
+                            } else {
+                                $watermark = $watermark->resize($wm_width, null, function ($constraint){
+                                    $constraint->aspectRatio();
+                                });
+                                $image = $image->insert($watermark, 'center');
+                            }
                         }
                     }
                 }
