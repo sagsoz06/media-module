@@ -32,6 +32,7 @@ class MediaMultipleDirective
 
         $zone = $this->zone;
         $zoneName = $this->zoneName ?: ucwords(str_replace('_', ' ', $this->zone));
+        $media = null;
 
         if ($this->entity !== null) {
             $media = $this->entity->filesByZone($this->zone)->get();

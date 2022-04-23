@@ -32,6 +32,7 @@ class MediaSingleDirective
 
         $zone = $this->zone;
         $zoneName = $this->zoneName;
+        $media = null;
 
         if ($this->entity !== null) {
             $media = $this->entity->filesByZone($this->zone)->first();
